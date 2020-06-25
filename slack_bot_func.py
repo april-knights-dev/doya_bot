@@ -4,6 +4,8 @@ from datetime import datetime
 import datetime as dt
 from apscheduler.schedulers.blocking import BlockingScheduler
 
+import reaction_sum
+
 # tokenの設定　環境変数に設定してる
 client = slack.WebClient(token=os.environ['SLACK_API_TOKEN'])
 sched = BlockingScheduler()
@@ -13,13 +15,13 @@ sched = BlockingScheduler()
 def send_message(channel, message):
     client.chat_postMessage(channel=channel, text=message)
 
-
 # 本番用設定値 毎月12時00分00秒にtime_jobを実行
 # @sched.scheduled_job('cron', day=1, hour=12, minute=00, second=0)
-@sched.scheduled_job('cron', day=25, hour=21, minute=20, second=0)
+@sched.scheduled_job('cron', day=26, hour=1, minute=45, second=0)
 def timed_job():
-    print("test")
-    # send_message('#tmp_bot放牧部屋', "さぁみんなデプロイ頑張ろうね！")
+    message = reaction_sum.get_message()
+    print(message)
+    send_message('#tmp_bot放牧部屋', message)
     # channel_post('#tmp_bot放牧部屋', "テスト中")
 
 # python slack_bot_func.py　で呼んだ時に実行される
