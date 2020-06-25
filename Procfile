@@ -1,2 +1,2 @@
-clock: python main.py
+clock: python slack_bot_func.py
 
