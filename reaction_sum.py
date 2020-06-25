@@ -3,8 +3,7 @@ import os
 import json
 import pprint
 
-# TOKEN = os.environ['SLACK_API_TOKEN']
-TOKEN = "xoxb-331326118613-1132985285975-v2OMvs9sQ4RmG0rkSRsDk6jL"
+TOKEN = os.environ['SLACK_API_TOKEN']
 SLACK_CHANNEL_ID = 'CHKUSV4B1'
 
 # 投稿のリンクを取得
