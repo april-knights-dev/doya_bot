@@ -26,4 +26,5 @@ def timed_job():
 # python slack_bot_func.py　で呼んだ時に実行される
 if __name__ == "__main__":
     sched.print_jobs()
+    send_message('#tmp_bot放牧部屋', "起動完了！")
     sched.start()
