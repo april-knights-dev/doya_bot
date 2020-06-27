@@ -2,6 +2,8 @@ import requests
 import os
 import json
 import pprint
+from datetime import datetime
+import calendar
 
 TOKEN = os.environ['SLACK_API_TOKEN']
 SLACK_CHANNEL_ID = 'CHKUSV4B1'
@@ -36,31 +38,51 @@ def get_user(user_id):
     # return "test"
     return json_data["user"]["profile"]["display_name"]
 
+def get_beginning_month(y, m):    
+    unix_beginning_month = datetime.strptime(
+        f'{y}/{m}/01 00:00:00', "%Y/%m/%d %H:%M:%S").timestamp()
+    return unix_beginning_month
+
+def get_month_last(y, m):
+    _, days = calendar.monthrange(y, m)
+    end_month = datetime.strptime(f'{y}/{m}/{days} 23:59:59', "%Y/%m/%d %H:%M:%S").timestamp()
+    return end_month
+
+
 # 過去の投稿を取ってきてあーだこーだしてる
 def get_message():
     SLACK_URL = "https://slack.com/api/conversations.history"
+
+    year = datetime.now().year
+    month = datetime.now().month - 1
+
+    print(datetime.fromtimestamp(get_beginning_month(year, month)))
+    print(datetime.fromtimestamp(get_month_last(year, month)))
+
     payload = {
         "channel": SLACK_CHANNEL_ID,
         "token": TOKEN,
-        # "oldest":"1577849100",
-        # "latest":"1592796300"
+        "oldest": get_beginning_month(year, month),  # 前月の月初
+        "latest": get_month_last(year, month)  # 前月の月末
     }
+
     response = requests.get(SLACK_URL, params=payload)
     json_data = response.json()
     # print(json_data)
 
     message_count = {}
-    messages = json_data["messages"]
+    messages = json_data.get("messages")
+
+    if messages is None:
+        return f"みんなー、はむはー！！僕はDOYA太郎！\n残念ながら{month}月は誰もdoyaを呟いてくれなかったみたいなのだ\n今月はみんなdoyaを主張してくれると嬉しいのだ！\nそれじゃあ、ばいきゅー"
+
+
     for data in messages:
         if data.get("reactions"):
-            # print(data.get("user"))
-            # print(data.get("text"))
 
             reactions = []
             for count in data.get("reactions"):
-
                 reactions.append(count.get("count"))
-            # print(sum(reactions))
 
             # {"userid": リアクションの合計数}みたいなdictを作成中
             message_count[data.get("ts"),
@@ -77,9 +99,6 @@ def get_message():
     send_message_link = get_permalink(ts) # 投稿リンク
     sum_reaction = sorted_reactions[-1][1]  # リアクション数
     
-    # for data in messages:
-    #     if data.get("client_msg_id") == send_id:
-    #         send_text = data.get("text")
 
     message_format = f"""
     みんなー、はむはー！！僕はDOYA太郎！
@@ -97,6 +116,4 @@ def get_message():
 
     print(message_format)
     return message_format
-        # for i in messages:
-    #     print(i["text"])
 
