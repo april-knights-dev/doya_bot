@@ -67,7 +67,7 @@ def get_message():
     }
 
     response = requests.get(SLACK_URL, params=payload)
-    json_data = response.json()
+    json_data = response.json() # 最初からdictだった
     # print(json_data)
 
     message_count = {}
@@ -84,17 +84,14 @@ def get_message():
             for count in data.get("reactions"):
                 reactions.append(count.get("count"))
 
-            # {"userid": リアクションの合計数}みたいなdictを作成中
+            # {(ts, "userid") : リアクションの合計数 } みたいなdictを作成中
             message_count[data.get("ts"),
                        data.get("user")] = sum(reactions)
 
     # dictをリアクションのカウント数でソート
     sorted_reactions = sorted(message_count.items(), key=lambda x: x[1])
-    # pprint.pprint(sorted_reactions)
-
 
     ts = sorted_reactions[-1][0][0] # timestamp(unixtime)
-    # print("userid", type(sorted_reactions[-1][0][1]))
     send_user = get_user(sorted_reactions[-1][0][1])  # 送信者のid
     send_message_link = get_permalink(ts) # 投稿リンク
     sum_reaction = sorted_reactions[-1][1]  # リアクション数
