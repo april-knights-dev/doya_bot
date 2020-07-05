@@ -8,7 +8,7 @@ def get_spread_data():
     scopes = ['https://www.googleapis.com/auth/spreadsheets']
     json_file = 'sample.json'#OAuth用クライアントIDの作成でダウンロードしたjsonファイル
     credentials = ServiceAccountCredentials.from_json_keyfile_name(json_file, scopes=scopes)
-    http_auth = credentials.authorize(Http()) # 出番忘れた、消すかも
+    # http_auth = credentials.authorize(Http()) # 出番忘れた、消すかも
 
     # スプレッドシート用クライアントの準備
     doc_id = os.environ['DOC_ID'] #これはスプレッドシートのURLのうちhttps://docs.google.com/spreadsheets/d/以下の部分
