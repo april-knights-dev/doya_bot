@@ -1,3 +1,4 @@
+# coding: utf-8
 import os
 import slack
 from datetime import datetime
@@ -16,7 +17,7 @@ def send_message(channel, message):
 
 # 本番用設定値 毎月12時00分00秒にtime_jobを実行
 # @sched.scheduled_job('cron', day=1, hour=12, minute=0, second=0)
-@sched.scheduled_job('cron', day=23, hour=17, minute=0, second=0)
+@sched.scheduled_job('cron', day=24, hour=10, minute=0, second=0)
 def timed_job():
     message = reaction_sum.get_message()
     print(message)
