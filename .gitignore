@@ -140,3 +140,6 @@ dmypy.json
 
 # Mac User
 .DS_Store
+
+# VSCode
+.vscode

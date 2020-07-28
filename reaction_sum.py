@@ -1,21 +1,16 @@
 import requests
 import os
-import json
-import pprint
 from datetime import datetime
 import calendar
 
-TOKEN = os.environ['SLACK_API_TOKEN']
-SLACK_CHANNEL_ID = 'CHKUSV4B1'
+TOKEN = os.environ["SLACK_API_TOKEN"]
+SLACK_CHANNEL_ID = "CHKUSV4B1"
+
 
 # 投稿のリンクを取得
 def get_permalink(ts):
     SLACK_URL = "https://slack.com/api/chat.getPermalink"
-    payload = {
-        "channel": SLACK_CHANNEL_ID,
-        "token": TOKEN,
-        "message_ts": ts
-    }
+    payload = {"channel": SLACK_CHANNEL_ID, "token": TOKEN, "message_ts": ts}
     response = requests.get(SLACK_URL, params=payload)
     json_data = response.json()
     # print(json_data)
@@ -38,14 +33,19 @@ def get_user(user_id):
     # return "test"
     return json_data["user"]["profile"]["display_name"]
 
-def get_beginning_month(y, m):    
+
+def get_beginning_month(y, m):
     unix_beginning_month = datetime.strptime(
-        f'{y}/{m}/01 00:00:00', "%Y/%m/%d %H:%M:%S").timestamp()
+        f"{y}/{m}/01 00:00:00", "%Y/%m/%d %H:%M:%S"
+    ).timestamp()
     return unix_beginning_month
+
 
 def get_month_last(y, m):
     _, days = calendar.monthrange(y, m)
-    end_month = datetime.strptime(f'{y}/{m}/{days} 23:59:59', "%Y/%m/%d %H:%M:%S").timestamp()
+    end_month = datetime.strptime(
+        f"{y}/{m}/{days} 23:59:59", "%Y/%m/%d %H:%M:%S"
+    ).timestamp()
     return end_month
 
 
@@ -63,19 +63,24 @@ def get_message():
         "channel": SLACK_CHANNEL_ID,
         "token": TOKEN,
         "oldest": get_beginning_month(year, month),  # 前月の月初
-        "latest": get_month_last(year, month)  # 前月の月末
+        "latest": get_month_last(year, month),  # 前月の月末
     }
 
     response = requests.get(SLACK_URL, params=payload)
-    json_data = response.json() # 最初からdictだった
+    json_data = response.json()  # 最初からdictだった
     # print(json_data)
 
     message_count = {}
     messages = json_data.get("messages")
 
     if messages is None:
-        return f"みんなー、はむはー！！僕はDOYA太郎！\n残念ながら{month}月は誰もdoyaを呟いてくれなかったみたいなのだ\n今月はみんなdoyaを主張してくれると嬉しいのだ！\nそれじゃあ、ばいきゅー"
+        return f"""
+        みんなー、はむはー！！僕はDOYA太郎！
+        残念ながら{month}月は誰もdoyaを呟いてくれなかったみたいなのだ
 
+        今月はみんなdoyaを主張してくれると嬉しいのだ！
+        それじゃあ、ばいきゅー
+        """
 
     for data in messages:
         if data.get("reactions"):
@@ -85,17 +90,15 @@ def get_message():
                 reactions.append(count.get("count"))
 
             # {(ts, "userid") : リアクションの合計数 } みたいなdictを作成中
-            message_count[data.get("ts"),
-                       data.get("user")] = sum(reactions)
+            message_count[data.get("ts"), data.get("user")] = sum(reactions)
 
     # dictをリアクションのカウント数でソート
     sorted_reactions = sorted(message_count.items(), key=lambda x: x[1])
 
-    ts = sorted_reactions[-1][0][0] # timestamp(unixtime)
+    ts = sorted_reactions[-1][0][0]  # timestamp(unixtime)
     send_user = get_user(sorted_reactions[-1][0][1])  # 送信者のid
-    send_message_link = get_permalink(ts) # 投稿リンク
+    send_message_link = get_permalink(ts)  # 投稿リンク
     sum_reaction = sorted_reactions[-1][1]  # リアクション数
-    
 
     message_format = f"""
     みんなー、はむはー！！僕はDOYA太郎！
@@ -113,4 +116,3 @@ def get_message():
 
     print(message_format)
     return message_format
-
