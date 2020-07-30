@@ -33,11 +33,10 @@ def send_message(channel, message):
 
 # .*でどんなメッセージでも受け付ける状態
 # respond_toで指定してもいいし、中でif message=xxx と分岐してもいい
-@respond_to("(.*)")
+@respond_to(r'.+')
 def mention_func(message):
     text = message.body["text"]
-    message.reply("message")  # メンション
-
+    send_message("pj_bot開発-bot放牧部屋",text)
 
 # @listen_to('リッスン')
 # def listen_func(message):
