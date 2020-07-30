@@ -1,0 +1,109 @@
+import requests
+import os
+import json
+import pprint
+from datetime import datetime
+import calendar
+
+TOKEN = os.environ['SLACK_API_TOKEN']
+SLACK_CHANNEL_ID = 'CHKUSV4B1'
+
+# 投稿のリンクを持ってくる
+def get_permalink(ts):
+    SLACK_URL = "https://slack.com/api/chat.getPermalink"
+    payload = {
+        "channel": SLACK_CHANNEL_ID,
+        "token": TOKEN,
+        "message_ts": ts
+    }
+    response = requests.get(SLACK_URL, params=payload)
+    json_data = response.json()
+    return json_data.get("permalink")
+
+# ユーザーIDとってくる
+def get_user(user_id):
+
+    SLACK_URL = "https://slack.com/api/users.info"
+    payload = {
+        "token": TOKEN,
+        "user": user_id
+    }
+    response = requests.get(SLACK_URL, params=payload)
+    json_data = response.json()
+#表示名持ってくる
+    return json_data["user"]["profile"]["display_name"]
+#なんかとってこれていない？
+#get_user(user_id)
+#１ヶ月たったら投稿してくれるやつ。理屈はわかるけど書き方むずいから書き写す
+def get_beginning_month(y, m):    
+    unix_beginning_month = datetime.strptime(
+        f'{y}/{m}/01 00:00:00', "%Y/%m/%d %H:%M:%S").timestamp()
+    return unix_beginning_month
+
+def get_month_last(y, m):
+    _, days = calendar.monthrange(y, m)
+    end_month = datetime.strptime(f'{y}/{m}/{days} 23:59:59', "%Y/%m/%d %H:%M:%S").timestamp()
+    return end_month
+
+#過去の投稿とってくる
+def get_message():
+    SLACK_URL = "https://slack.com/api/conversations.history"
+    #yymmをいい感じにしてくれるらしい
+    year = datetime.now().year
+    month = datetime.now().month - 1
+
+    print(datetime.fromtimestamp(get_beginning_month(year, month)))
+    print(datetime.fromtimestamp(get_month_last(year, month)))
+
+    payload = {
+        "channel": SLACK_CHANNEL_ID,
+        "token": TOKEN,
+        "oldest": get_beginning_month(year, month),  # 前月の月初
+        "latest": get_month_last(year, month)  # 前月の月末
+    }
+
+    response = requests.get(SLACK_URL, params=payload)
+    json_data = response.json()
+
+    message_count = {}
+    messages = json_data.get("messages")
+
+    if messages is None:
+        return f"みんなー、はむはー！！僕はDOYA太郎！\n残念ながら{month}月は誰もdoyaを呟いてくれなかったみたいなのだ\n今月はみんなdoyaを主張してくれると嬉しいのだ！\nそれじゃあ、ばいきゅー"
+
+
+    for data in messages:
+        if data.get("reactions"):
+
+            reactions = []
+            for count in data.get("reactions"):
+                reactions.append(count.get("count"))
+
+            # リアクションを集計する
+            message_count[data.get("ts"),
+                       data.get("user")] = sum(reactions)
+
+    # dictをリアクションのカウント数でソート
+    sorted_reactions = sorted(message_count.items(), key=lambda x: x[1])
+    # print(sorted_reactions)
+
+#ちゃんと理解できてない気がする・・・・多分メッセージ内で使えるようにしているのでは。写経します
+    ts = sorted_reactions[-1][0][0] # timestamp(unixtime)
+    send_user = get_user(sorted_reactions[-1][0][1])  # 送信者のid
+    send_message_link = get_permalink(ts) # 投稿リンク
+    sum_reaction = sorted_reactions[-1][1]  # リアクション数
+    
+
+    message_format = f"""
+    みんなー、はむはー！！僕はDOYA太郎！
+    月間doya大賞の発表だよっ
+    （※doya大賞の集計は毎月1日0:00〜月末23:59の投稿の中から集計しているのだ :star:）\n
+    投稿者：{send_user}さん
+    リアクション総数：{sum_reaction}個
+    いちばんリアクションをもらった投稿なのだ
+    {send_message_link}
+    それじゃあ、ばいきゅー
+    """
+
+    print(message_format)
+    return message_format

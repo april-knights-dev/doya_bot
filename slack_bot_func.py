@@ -9,11 +9,10 @@ import reaction_sum
 client = slack.WebClient(token=os.environ["SLACK_API_TOKEN"])
 sched = BlockingScheduler()
 
-
 # ただメッセージを送るだけの関数
 def send_message(channel, message):
     client.chat_postMessage(channel=channel, text=message)
-
+    
 
 # 本番用設定値 毎月12時00分00秒にtime_jobを実行
 # @sched.scheduled_job('cron', day=1, hour=12, minute=0, second=0)
