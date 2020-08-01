@@ -26,19 +26,15 @@ client = slack.WebClient(token=os.environ["SLACK_API_TOKEN"])
 # message.send('string')    string を送信
 # message.react('icon_emoji')  発言者のメッセージにリアクション(スタンプ)する
 #                               文字列中に':'はいらない
+
+
 # メッセージ送る
 def send_message(channel, message):
     client.chat_postMessage(channel=channel, text=message)
 
 
-# .*でどんなメッセージでも受け付ける状態
-# respond_toで指定してもいいし、中でif message=xxx と分岐してもいい
-@respond_to(r'.+')
+# メンション+メッセージを受ける（メッセージが空だとデフォルト返答をする）
+@respond_to(r".+")
 def mention_func(message):
     text = message.body["text"]
-    send_message("pj_bot開発-bot放牧部屋", text)
-
-# @listen_to('リッスン')
-# def listen_func(message):
-#     message.send('誰かがリッスンと投稿したようだ')      # ただの投稿
-#     message.reply('君だね？')
+    send_message("G0149FE9SAW", text)
