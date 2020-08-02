@@ -2,15 +2,16 @@ import requests
 import os
 from datetime import datetime
 import calendar
+from pprint import pprint
 
 TOKEN = os.environ["SLACK_API_TOKEN"]
 SLACK_CHANNEL_ID = "CHKUSV4B1"
 
 
 # 投稿のリンクを取得
-def get_permalink(ts):
+def get_permalink(channel_id, ts):
     SLACK_URL = "https://slack.com/api/chat.getPermalink"
-    payload = {"channel": SLACK_CHANNEL_ID, "token": TOKEN, "message_ts": ts}
+    payload = {"channel": channel_id, "token": TOKEN, "message_ts": ts}
     response = requests.get(SLACK_URL, params=payload)
     json_data = response.json()
     # print(json_data)
@@ -68,6 +69,7 @@ def get_message():
 
     response = requests.get(SLACK_URL, params=payload)
     json_data = response.json()  # 最初からdictだった
+    pprint(json_data)
     # print(json_data)
 
     message_count = {}
@@ -97,7 +99,7 @@ def get_message():
 
     ts = sorted_reactions[-1][0][0]  # timestamp(unixtime)
     send_user = get_user(sorted_reactions[-1][0][1])  # 送信者のid
-    send_message_link = get_permalink(ts)  # 投稿リンク
+    send_message_link = get_permalink(SLACK_CHANNEL_ID, ts)  # 投稿リンク
     sum_reaction = sorted_reactions[-1][1]  # リアクション数
 
     message_format = f"""

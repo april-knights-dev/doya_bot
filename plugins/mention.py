@@ -3,6 +3,8 @@ import slack
 from slackbot.bot import respond_to
 import os
 
+from .reaction_sum import get_user, get_permalink
+
 # @botname: で反応するデコーダ
 
 # tokenの設定　環境変数に設定してる
@@ -30,11 +32,15 @@ client = slack.WebClient(token=os.environ["SLACK_API_TOKEN"])
 
 # メッセージ送る
 def send_message(channel, message):
+    print("呼ばれた")
     client.chat_postMessage(channel=channel, text=message)
 
 
 # メンション+メッセージを受ける（メッセージが空だとデフォルト返答をする）
 @respond_to(r".+")
 def mention_func(message):
-    text = message.body["text"]
-    send_message("G0149FE9SAW", text)
+    body = message.body
+    link = get_permalink(body["channel"], body["ts"])
+    name = get_user(body["user"])
+    send_message("CHKUSV4B1", f"【doya代行】\n{name}さん、偉いのだ！\n\n{link}")
+    print("doya部屋へ送信完了")
