@@ -107,13 +107,15 @@ def get_message():
     月間doya大賞の発表だよっ
     （※doya大賞の集計は毎月1日0:00〜月末23:59の投稿の中から集計しているのだ :star:）\n
 
+    対象月：{month}月
     投稿者：{send_user}さん
     リアクション総数：{sum_reaction}個
 
     いちばんリアクションをもらった投稿なのだ
     {send_message_link}
 
-    それじゃあ、ばいきゅー
+　　来月もたくさんのdoyaをお待ちしているのだ！
+    それじゃあ、ばいきゅー！
     """
 
     print(message_format)

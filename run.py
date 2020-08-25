@@ -10,7 +10,7 @@ from plugins.mention import send_message
 sched = BlockingScheduler()
 
 
-@sched.scheduled_job("cron", day="1st tue", hour=12, minute=0, second=0)
+@sched.scheduled_job("cron", day=1, hour=12, minute=0, second=0)
 # @sched.scheduled_job("cron", day=2, hour=1, minute=40, second=0)
 def timed_job():
     message = get_message()
