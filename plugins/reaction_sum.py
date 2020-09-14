@@ -102,13 +102,18 @@ def get_message():
     send_message_link = get_permalink(SLACK_CHANNEL_ID, ts)  # 投稿リンク
     sum_reaction = sorted_reactions[-1][1]  # リアクション数
 
+    if not send_user:
+        send_user = "代行"
+    else:
+        send_user = f"{send_user}さん" 
+
     message_format = f"""
     みんなー、はむはー！！僕はDOYA太郎！
     月間doya大賞の発表だよっ
     （※doya大賞の集計は毎月1日0:00〜月末23:59の投稿の中から集計しているのだ :star:）\n
 
     対象月：{month}月
-    投稿者：{send_user}さん
+    投稿者：{send_user}
     リアクション総数：{sum_reaction}個
 
     いちばんリアクションをもらった投稿なのだ
