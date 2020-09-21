@@ -2,11 +2,13 @@
 import slack
 from slackbot.bot import respond_to
 import os
-  # @botname: で反応するデコーダ
+
+from .reaction_sum import get_user, get_permalink
+
+# @botname: で反応するデコーダ
 
 # tokenの設定　環境変数に設定してる
 client = slack.WebClient(token=os.environ["SLACK_API_TOKEN"])
-sched = BlockingScheduler()
 
 # from slackbot.bot import listen_to      # チャネル内発言で反応するデコーダ
 # from slackbot.bot import default_reply  # 該当する応答がない場合に反応するデコーダ
@@ -26,19 +28,19 @@ sched = BlockingScheduler()
 # message.send('string')    string を送信
 # message.react('icon_emoji')  発言者のメッセージにリアクション(スタンプ)する
 #                               文字列中に':'はいらない
-#メッセージ送る
+
+
+# メッセージ送る
 def send_message(channel, message):
+    print("呼ばれた")
     client.chat_postMessage(channel=channel, text=message)
 
-# .*でどんなメッセージでも受け付ける状態
-# respond_toで指定してもいいし、中でif message=xxx と分岐してもいい
-@respond_to("(.*)")
-def mention_func(message, args):
-    text = message.body['text']
-    message.reply("message")  # メンション
 
-
-# @listen_to('リッスン')
-# def listen_func(message):
-#     message.send('誰かがリッスンと投稿したようだ')      # ただの投稿
-#     message.reply('君だね？')
+# メンション+メッセージを受ける（メッセージが空だとデフォルト返答をする）
+@respond_to(r".+")
+def mention_func(message):
+    body = message.body
+    link = get_permalink(body["channel"], body["ts"])
+    name = get_user(body["user"])
+    send_message("CHKUSV4B1", f"【doya代行】\n{name}さん、偉いのだ！\n\n{link}")
+    print("doya部屋へ送信完了")

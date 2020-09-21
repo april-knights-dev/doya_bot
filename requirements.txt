@@ -1,4 +1,4 @@
 APScheduler
-gspread
 requests
 slackclient
+slackbot
