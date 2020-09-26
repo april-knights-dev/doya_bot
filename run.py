@@ -4,17 +4,17 @@ from threading import Thread
 from slackbot.bot import Bot
 from apscheduler.schedulers.blocking import BlockingScheduler
 
-from plugins.reaction_sum import get_message
+from plugins.main import main_func
 from plugins.mention import send_message
 
 sched = BlockingScheduler()
 
 
 @sched.scheduled_job("cron", day=1, hour=12, minute=0, second=0)
-# @sched.scheduled_job("cron", day=2, hour=1, minute=40, second=0)
 def timed_job():
-    message = get_message()
+    message = main_func()
     send_message("CA798CMV0", message)
+    # send_message("#pj_bot開発-bot放牧部屋", message)
 
 
 def main():
